@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidecar-injector-webhook-deployment
+  namespace: sidecar-injector
+  labels:
+    app: sidecar-injector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidecar-injector
+  template:
+    metadata:
+      labels:
+        app: sidecar-injector
+    spec:
+      containers:
+        - name: sidecar-injector
+          image: registry.cn-beijing.aliyuncs.com/kuops/adminssion-webhook:v20201221
+          imagePullPolicy: Always
+          volumeMounts:
+          - name: webhook-certs
+            mountPath: /etc/webhook/certs
+            readOnly: true
+          command: ["sh","-c","ls -al /etc/webhook/certs && /root/adminssion-webhook"]
+      volumes:
+      - name: webhook-certs
+        secret:
+          secretName: sidecar-injector-webhook-certs
